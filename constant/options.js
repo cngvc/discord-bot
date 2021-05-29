@@ -1,9 +1,9 @@
-const tokenPrice = (symbol) => ({
+const tokenPrice = (symbol, convert = "USD") => ({
     method: "GET",
     uri: "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
     qs: {
       symbol,
-      convert: "USD",
+      convert,
     },
     headers: {
       "X-CMC_PRO_API_KEY": process.env.CMC_API_KEY,

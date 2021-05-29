@@ -11,7 +11,7 @@ client.login(process.env.DISCORDJS_BOT_TOKEN);
 
 client.on("message", (message) => {
   if (message.author.bot) return;
-  
+
   if (message.mentions.users.some((user) => user.bot)) {
     message.reply("?");
     return;
@@ -30,23 +30,31 @@ client.on("message", (message) => {
     return;
   }
 
-  const __content = content.toUpperCase();
+  const __content = content.toUpperCase().trim();
   if (__content[0] === "!") {
-    const symbol = __content.slice(1).toUpperCase();
-    const request = tokenPrice(symbol);
+    let symbol = "";
+    let convert = "USD";
+    if (content.includes("->")) {
+      const arr = __content.slice(1).split("->");
+      convert = arr[1];
+      symbol = arr[0];
+    } else {
+      symbol = __content.slice(1);
+    }
+    const request = tokenPrice(symbol, convert);
     rp(request)
       .then((response) => {
         message.channel.send({
           embed: {
             color: colors.primary,
-            description: `${symbol}: ${response.data[symbol].quote["USD"].price} USDT`,
+            description: `${symbol}: ${response.data[symbol].quote[convert].price} ${convert}`,
           },
         });
       })
       .catch(() => {
         message.reply(`${__content} chưa list trên CMC`);
       });
-      return;
+    return;
   }
 
   if (__content[0] === "?") {
@@ -79,7 +87,7 @@ client.on("message", (message) => {
       .catch(() => {
         message.reply(`${__content} chưa list trên CMC`);
       });
-      return;
+    return;
   }
 
   if (trashTalk.some((talk) => __content.toLowerCase().includes(talk))) {

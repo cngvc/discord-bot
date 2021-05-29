@@ -16,6 +16,9 @@ client.on("message", (message) => {
   }
   if(!message.author.bot){
     const { content } = message;
+    // add message log on heroku
+    console.log(content)
+
     const __content = content.toUpperCase();
     if (__content[0] === "!") {
       const symbol = __content.slice(1).toUpperCase();

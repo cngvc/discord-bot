@@ -19,7 +19,7 @@ client.on("message", (message) => {
         color: colors.primary,
         description: `
             Chart: https://poocoin.app/tokens/${content}
-            BSC: https://bscscan.com/address/${content}
+            BSC: https://bscscan.com/token/${content}
           `,
       },
     });

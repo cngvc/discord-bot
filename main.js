@@ -13,7 +13,7 @@ client.on("message", (message) => {
   if (message.author.bot) return;
   
   if (message.mentions.users.some((user) => user.bot)) {
-    message.reply("Gọi cái đéo gì? Mày muốn cái đéo gì ở tao?");
+    message.reply("?");
     return;
   }
   const { content } = message;

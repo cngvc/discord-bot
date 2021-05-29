@@ -17,7 +17,8 @@ client.on("message", (message) => {
   if(!message.author.bot){
     const { content } = message;
     if(smartChainAdressRE.test(content)){
-      message.channel.send("https://poocoin.app/tokens/" + content)
+      message.channel.send(`Chart: https://poocoin.app/tokens/${content}`)
+      message.channel.send(`BSC: https://bscscan.com/address/${content}`)
     }
     const __content = content.toUpperCase();
     if (__content[0] === "!") {

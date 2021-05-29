@@ -3,7 +3,7 @@ require("dotenv").config();
 const Discord = require("discord.js");
 const rp = require("request-promise");
 const tokenPrice = require("./constant/options");
-const trashTalk = require("./constant/strings");
+const {trashTalk, smartChainAdressRE} = require("./constant/strings");
 
 
 const client = new Discord.Client();
@@ -16,9 +16,9 @@ client.on("message", (message) => {
   }
   if(!message.author.bot){
     const { content } = message;
-    // add message log on heroku
-    console.log(content)
-
+    if(smartChainAdressRE.test(content)){
+      message.channel.send("https://poocoin.app/tokens/" + content)
+    }
     const __content = content.toUpperCase();
     if (__content[0] === "!") {
       const symbol = __content.slice(1).toUpperCase();
@@ -30,12 +30,12 @@ client.on("message", (message) => {
           );
         })
         .catch(() => {
-          message.reply(`Check cái đéo gì bọn lon CMC đã list tao trên cái sàn lon của chúng nó đâu`);
+          message.reply(`${__content} chưa list trên CMC`);
         });
     }
-    if (trashTalk.some(talk => __content.toLowerCase().includes(talk))) {
-      message.reply("Chửi cái đcmm à?");
-    }
+    // if (trashTalk.some(talk => __content.toLowerCase().includes(talk))) {
+    //   message.reply("Chửi cái đcmm à?");
+    // }
   }
 });
 

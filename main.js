@@ -12,10 +12,6 @@ client.login(process.env.DISCORDJS_BOT_TOKEN);
 client.on("message", (message) => {
   if (message.author.bot) return;
 
-  if (message.mentions.users.some((user) => user.bot)) {
-    message.reply("?");
-    return;
-  }
   const { content } = message;
   if (smartChainAdressRE.test(content)) {
     message.channel.send({
@@ -87,11 +83,6 @@ client.on("message", (message) => {
       .catch(() => {
         message.reply(`${__content} chưa list trên CMC`);
       });
-    return;
-  }
-
-  if (trashTalk.some((talk) => __content.toLowerCase().includes(talk))) {
-    message.reply("Chửi cái đcmm à?");
     return;
   }
 });

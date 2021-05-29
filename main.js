@@ -3,7 +3,7 @@ require("dotenv").config();
 const Discord = require("discord.js");
 const rp = require("request-promise");
 const { tokenPrice, tokenInfo } = require("./constant/options");
-const { trashTalk, smartChainAdressRE, colors } = require("./constant/strings");
+const { smartChainAdressRE, colors, coinSymbolRE } = require("./constant/strings");
 
 const client = new Discord.Client();
 
@@ -53,7 +53,7 @@ client.on("message", (message) => {
     return;
   }
 
-  if (__content[0] === "?") {
+  if (coinSymbolRE.test(__content)) {
     const symbol = __content.slice(1).toUpperCase();
     const request = tokenInfo(symbol);
     rp(request)

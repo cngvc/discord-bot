@@ -33,7 +33,7 @@ const whaleAlert = () => ({
   uri: `${WHALE_ALERT_API}/transactions`,
   qs: {
     limit: 1,
-    min_value: 100000000
+    min_value: 10000000
   },
   headers: {
     "X-WA-API-KEY": process.env.WHALE_ALERT_API_KEY,

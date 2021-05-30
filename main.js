@@ -3,7 +3,12 @@ require("dotenv").config();
 const Discord = require("discord.js");
 const rp = require("request-promise");
 const { tokenPrice, tokenInfo } = require("./constant/options");
-const { smartChainAdressRE, colors, coinSymbolRE } = require("./constant/strings");
+const {
+  smartChainAdressRE,
+  colors,
+  coinSymbolRE,
+} = require("./constant/strings");
+const { quotes } = require("./constant/quotes");
 
 const client = new Discord.Client();
 
@@ -27,6 +32,21 @@ client.on("message", (message) => {
   }
 
   const __content = content.toUpperCase().trim();
+
+  if (__content === "!QUOTE") {
+    const index = Math.floor(Math.random() * quotes.length);
+    message.channel.send({
+      embed: {
+        color: colors.primary,
+        description: `
+            ${quotes[index].quoteText}
+            - ${quotes[index].quoteAuthor}
+          `,
+      },
+    });
+    return;
+  }
+
   if (__content[0] === "!") {
     let symbol = "";
     let convert = "USD";

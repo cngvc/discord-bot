@@ -2,12 +2,14 @@ require("dotenv").config();
 
 const Discord = require("discord.js");
 const rp = require("request-promise");
-const { tokenPrice, tokenInfo } = require("./constant/options");
+
+const { tokenPrice, tokenInfo, whaleAlert } = require("./constant/options");
 const {
   smartChainAdressRE,
   colors,
   coinSymbolRE,
 } = require("./constant/strings");
+const { numberWithCommas } = require("./constant/helpers");
 
 const client = new Discord.Client();
 
@@ -118,4 +120,50 @@ client.on("message", (message) => {
 
 client.once("ready", () => {
   console.log("Scammer is online");
+
+  const generalRoom = client.channels.cache.get("846392662953033793");
+
+  let prevTimespan = null;
+  let prevTransactionHash = null;
+
+  setInterval(() => {
+    const request = whaleAlert();
+    rp(request)
+      .then((response) => {
+        const {timestamp, transactions} = response
+
+        const transaction = transactions[0];
+        const {
+          symbol,
+          amount,
+          amount_usd,
+          hash,
+          from: { owner_type: fromType },
+          to: { owner_type: toType },
+        } = transaction;
+        
+        if (
+          result === "success" &&
+          timestamp !== prevTimespan &&
+          hash !== prevTransactionHash 
+        ) {
+
+          prevTimespan = timestamp;
+          prevTransactionHash = hash
+
+          const description = `${Math.round(
+            amount
+          )} #${symbol.toUpperCase()} (${numberWithCommas(
+            amount_usd
+          )} USD) transferred from #${fromType.toUpperCase()} to #${toType.toUpperCase()}`;
+          generalRoom.send({
+            embed: {
+              color: colors.warning,
+              description,
+            },
+          });
+        }
+      })
+      .catch(() => {});
+  }, 60000);
 });

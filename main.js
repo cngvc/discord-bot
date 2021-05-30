@@ -8,7 +8,6 @@ const {
   colors,
   coinSymbolRE,
 } = require("./constant/strings");
-const { quotes } = require("./constant/quotes");
 
 const client = new Discord.Client();
 
@@ -33,14 +32,12 @@ client.on("message", (message) => {
 
   const __content = content.toUpperCase().trim();
 
-  if (__content === "!QUOTE") {
-    const index = Math.floor(Math.random() * quotes.length);
+  if (__content === "!STAKING") {
     message.channel.send({
       embed: {
         color: colors.primary,
         description: `
-            ${quotes[index].quoteText}
-            - ${quotes[index].quoteAuthor}
+            BSCS: https://farm.bscstation.finance/#/farms/1
           `,
       },
     });

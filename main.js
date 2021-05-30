@@ -44,6 +44,18 @@ client.on("message", (message) => {
     return;
   }
 
+  if (__content === "!PCS") {
+    message.channel.send({
+      embed: {
+        color: colors.primary,
+        description: `
+            Pancakeswap: https://exchange.pancakeswap.finance/#/swap
+          `,
+      },
+    });
+    return;
+  }
+
   if (__content[0] === "!") {
     let symbol = "";
     let convert = "USD";

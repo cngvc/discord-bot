@@ -7,16 +7,16 @@ const { whaleTranfer } = require("./fetch/whaleAPI");
 const { colors } = require("./constant/strings");
 const client = new Discord.Client();
 client.login(process.env.DISCORDJS_BOT_TOKEN);
-const { pricePrefix, generalChannelID } = require("./config.json");
+const { pricePrefix, generalChannelID, botSpamChannelID } = require("./config.json");
 
-client.on("message", async (message) => {
+client.on("message", (message) => {
   if (message.author.bot) return;
   const { content } = message;
   const prefix = content[0];
   const commandName = content.trim().slice(1).toUpperCase();
 
   const getPrice = async (symbol) => {
-    const description = await tokenPrice({ symbol });
+    const { description } = await tokenPrice({ symbol });
     message.channel.send({ embed: { color: colors.primary, description } });
   };
   switch (prefix) {
@@ -28,13 +28,15 @@ client.on("message", async (message) => {
   }
 });
 
-client.once("ready", () => {
+client.once("ready", async () => {
   const generalRoom = client.channels.cache.get(generalChannelID);
 
   let prevTimespan = null;
   let prevTransactionHash = null;
+  
+  let btcPricePrev = 0;
 
-  setInterval(() => {
+  const whale = setInterval(() => {
     const checkWhaleTranfer = async () => {
       const result = await whaleTranfer();
       if (result) {
@@ -48,4 +50,22 @@ client.once("ready", () => {
     };
     checkWhaleTranfer();
   }, 60000);
+
+  const btc = setInterval(() => {
+    const btcPrice = async () => {
+      const { price } = await tokenPrice({ symbol: "BTC" });
+      if(btcPricePrev){
+        const isIncreased = price > btcPricePrev
+        const percent = Number.parseFloat((Math.abs(price - btcPricePrev) / btcPricePrev) * 100).toFixed(2);
+        const color = isIncreased ? colors.success : colors.danger
+        const description = `
+        BTC: ${price} USD,
+        ${isIncreased ? "Increased" : "Decreased"} by ${percent}% in the last 30 minutes
+        `; 
+        generalRoom.send({ embed: { color, description } });
+      }
+      btcPricePrev = price;
+    };
+    btcPrice();
+  }, 1800000);
 });

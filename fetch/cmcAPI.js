@@ -18,7 +18,10 @@ const tokenPrice = async ({ symbol, convert = "USD" }) => {
   const result = await rp(tokenPriceAPI({ symbol, convert }));
   if(result && result.data) {
     const obj = result.data[symbol]
-    return `${symbol}: ${obj.quote["USD"].price} USD`;
+    return {
+      price: obj.quote["USD"].price,
+      description: `${symbol}: ${obj.quote["USD"].price} USD`
+    }
   }
   return null;
 };

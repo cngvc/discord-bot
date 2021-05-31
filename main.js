@@ -1,13 +1,16 @@
 require("dotenv").config();
 
 const Discord = require("discord.js");
-const rp = require("request-promise");
 const { tokenPrice } = require("./fetch/cmcAPI");
 const { whaleTranfer } = require("./fetch/whaleAPI");
 const { colors } = require("./constant/strings");
 const client = new Discord.Client();
 client.login(process.env.DISCORDJS_BOT_TOKEN);
-const { pricePrefix, generalChannelID, botSpamChannelID } = require("./config.json");
+const {
+  pricePrefix,
+  generalChannelID,
+  botSpamChannelID,
+} = require("./config.json");
 
 client.on("message", (message) => {
   if (message.author.bot) return;
@@ -29,11 +32,10 @@ client.on("message", (message) => {
 });
 
 client.once("ready", async () => {
-  const generalRoom = client.channels.cache.get(generalChannelID);
-
+  // botSpamChannelID
+  const generalRoom = client.channels.cache.get(botSpamChannelID);
   let prevTimespan = null;
   let prevTransactionHash = null;
-  
   let btcPricePrev = 0;
 
   const whale = setInterval(() => {
@@ -49,19 +51,22 @@ client.once("ready", async () => {
       }
     };
     checkWhaleTranfer();
-  }, 60000);
+  }, 300000);
 
   const btc = setInterval(() => {
     const btcPrice = async () => {
       const { price } = await tokenPrice({ symbol: "BTC" });
-      if(btcPricePrev){
-        const isIncreased = price > btcPricePrev
-        const percent = Number.parseFloat((Math.abs(price - btcPricePrev) / btcPricePrev) * 100).toFixed(2);
-        const color = isIncreased ? colors.success : colors.danger
+      if (btcPricePrev) {
+        const isIncreased = price > btcPricePrev;
+        const percent = Number.parseFloat(
+          (Math.abs(price - btcPricePrev) / btcPricePrev) * 100
+        ).toFixed(2);
+        const color = isIncreased ? colors.success : colors.danger;
+        const icon = isIncreased ? ":point_up:" : ":point_down:";
         const description = `
-        BTC: ${price} USD,
-        ${isIncreased ? "Increased" : "Decreased"} by ${percent}% in the last 30 minutes
-        `; 
+          ${icon} BTC: **${Number.parseFloat(price).toFixed(2)}** USD\n${
+          isIncreased ? "Increased" : "Decreased"
+        } by **${percent}%** in the last 30 minutes`;
         generalRoom.send({ embed: { color, description } });
       }
       btcPricePrev = price;

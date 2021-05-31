@@ -20,7 +20,7 @@ const tokenPrice = async ({ symbol, convert = "USD" }) => {
     const obj = result.data[symbol]
     return {
       price: obj.quote["USD"].price,
-      description: `${symbol}: ${obj.quote["USD"].price} USD`
+      description: `${symbol}: **${obj.quote["USD"].price}** USD`
     }
   }
   return null;

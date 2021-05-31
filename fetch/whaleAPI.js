@@ -2,7 +2,8 @@ const rp = require("request-promise");
 require("dotenv").config();
 const { numberWithCommas } = require("../constant/helpers");
 
-const WHALE_ALERT_API = "https://api.whale-alert.io/v1/";
+const WHALE_ALERT_API = "https://api.whale-alert.io/v1";
+const WHALE_SCAN_API = "https://whale-alert.io/transaction";
 
 const whaleAlert = {
   method: "GET",
@@ -23,6 +24,7 @@ const whaleTranfer = async () => {
     const { timestamp, transactions } = result;
     const transaction = transactions[0];
     const {
+      blockchain,
       symbol,
       amount,
       amount_usd,
@@ -30,11 +32,14 @@ const whaleTranfer = async () => {
       from: { owner_type: fromType },
       to: { owner_type: toType },
     } = transaction;
-    const description = `${Math.round(
+    let detailURL = `${WHALE_SCAN_API}/${blockchain}/${hash}`;
+    if(hash === "Multiple Hashes") detailURL = null;
+    let description = `**${Math.round(
       amount
-    )} #${symbol.toUpperCase()} (${numberWithCommas(
+    )}** #${symbol.toUpperCase()} (**${numberWithCommas(
       amount_usd
-    )} USD) transferred from #${fromType.toUpperCase()} to #${toType.toUpperCase()}`;
+    )}** USD) transferred from #${fromType.toUpperCase()} to #${toType.toUpperCase()}`;
+    if(detailURL) description += `\n\n:link: [See details here](${detailURL})`
     return { timestamp, hash, description };
   }
   return null;

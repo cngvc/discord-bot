@@ -1,4 +1,8 @@
-const Discord = require("discord.js");
+const THAM_LAM_IMAGE_URL = "https://i.ibb.co/XS0rPNd/tham-lam.jpg"
+const NGU_DOT_IMAGE_URL = "https://i.ibb.co/pJ1ZLYF/ngu-dot.jpg"
+const CON_CAI_NIT_IMAGE_URL = "https://i.ibb.co/B6D36h8/con-cai-nit.jpg"
+const PHAN_VAN_IMAGE_URL = "https://i.ibb.co/8mHwCv5/phan-van.png"
+const X_PAIN_IMAGE_URL = "https://i.ibb.co/QFDhn4G/x-pain.png"
 
 module.exports = [
   {
@@ -6,12 +10,15 @@ module.exports = [
       return content.toLowerCase().includes("tham lam");
     },
     execute(channel) {
-      const path = `${appRoot}/assests/images/tham_lam.jpeg`;
-      const attachment = new Discord.MessageAttachment(path, "tham_lam.jpeg");
-      const embed = new Discord.MessageEmbed()
-        .attachFiles(attachment)
-        .setImage("attachment://tham_lam.jpeg");
-      channel.send({ embed });
+      channel.send(THAM_LAM_IMAGE_URL);
+    },
+  },
+  {
+    match(content) {
+      return content.toLowerCase().includes("ngu dốt");
+    },
+    execute(channel) {
+      channel.send(NGU_DOT_IMAGE_URL);
     },
   },
   {
@@ -19,12 +26,7 @@ module.exports = [
       return content.toLowerCase().includes("nịt");
     },
     execute(channel) {
-      const path = `${appRoot}/assests/images/con_cai_nit.jpeg`;
-      const attachment = new Discord.MessageAttachment(path, "con_cai_nit.jpeg");
-      const embed = new Discord.MessageEmbed()
-        .attachFiles(attachment)
-        .setImage("attachment://con_cai_nit.jpeg");
-      channel.send({ embed });
+      channel.send(CON_CAI_NIT_IMAGE_URL);
     },
   },
   {
@@ -32,12 +34,15 @@ module.exports = [
       return content.toLowerCase().includes("phan van") || content.toLowerCase().includes("phân vân");
     },
     execute(channel) {
-      const path = `${appRoot}/assests/images/phan_van.jpeg`;
-      const attachment = new Discord.MessageAttachment(path, "phan_van.jpeg");
-      const embed = new Discord.MessageEmbed()
-        .attachFiles(attachment)
-        .setImage("attachment://phan_van.jpeg");
-      channel.send({ embed });
+      channel.send(PHAN_VAN_IMAGE_URL);
+    },
+  },
+  {
+    match(content) {
+      return content.toLowerCase().includes("future") || content.toLowerCase().includes("shitcoin");
+    },
+    execute(channel) {
+      channel.send(X_PAIN_IMAGE_URL);
     },
   },
 ];

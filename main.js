@@ -78,11 +78,11 @@ client.once("ready", async () => {
         const description = `
           ${icon} BTC: **${Number.parseFloat(price).toFixed(2)}** USD\n${
           isIncreased ? "Increased" : "Decreased"
-        } by **${percent}%** in the last 30 minutes`;
+        } by **${percent}%** in the last 1 hour`;
         generalRoom.send({ embed: { color, description } });
       }
       btcPricePrev = price;
     };
     btcPrice();
-  }, 1800000);
+  }, 3600000);
 });

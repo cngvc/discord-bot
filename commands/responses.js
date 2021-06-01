@@ -3,6 +3,7 @@ const NGU_DOT_IMAGE_URL = "https://i.ibb.co/pJ1ZLYF/ngu-dot.jpg"
 const CON_CAI_NIT_IMAGE_URL = "https://i.ibb.co/B6D36h8/con-cai-nit.jpg"
 const PHAN_VAN_IMAGE_URL = "https://i.ibb.co/8mHwCv5/phan-van.png"
 const X_PAIN_IMAGE_URL = "https://i.ibb.co/QFDhn4G/x-pain.png"
+const PRAY_GIF_URL = "http://gph.is/1rrG9vI"
 
 module.exports = [
   {
@@ -43,6 +44,14 @@ module.exports = [
     },
     execute(channel) {
       channel.send(X_PAIN_IMAGE_URL);
+    },
+  },
+  {
+    match(content) {
+      return content.toLowerCase().includes("please") || content.toLowerCase().includes("pls");
+    },
+    execute(channel) {
+      channel.send(PRAY_GIF_URL);
     },
   },
 ];

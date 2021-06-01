@@ -1,9 +1,15 @@
 require("dotenv").config();
 
+const path = require("path");
+global.appRoot = path.resolve(__dirname);
+
 const Discord = require("discord.js");
 const { tokenPrice } = require("./fetch/cmcAPI");
 const { whaleTranfer } = require("./fetch/whaleAPI");
 const { colors } = require("./constant/strings");
+
+const responses = require("./commands/responses");
+
 const client = new Discord.Client();
 client.login(process.env.DISCORDJS_BOT_TOKEN);
 const {
@@ -14,19 +20,25 @@ const {
 
 client.on("message", (message) => {
   if (message.author.bot) return;
+  const { channel } = message;
+
   const { content } = message;
   const prefix = content[0];
   const commandName = content.trim().slice(1).toUpperCase();
 
   const getPrice = async (symbol) => {
     const { description } = await tokenPrice({ symbol });
-    message.channel.send({ embed: { color: colors.primary, description } });
+    channel.send({ embed: { color: colors.primary, description } });
   };
   switch (prefix) {
     case pricePrefix:
       getPrice(commandName);
       break;
     default:
+      const response = responses.find((res) => res.match(content));
+      if (response) {
+        response.execute(channel);
+      }
       return;
   }
 });

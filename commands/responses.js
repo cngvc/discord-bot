@@ -27,4 +27,17 @@ module.exports = [
       channel.send({ embed });
     },
   },
+  {
+    match(content) {
+      return content.toLowerCase().includes("phan van") || content.toLowerCase().includes("phân vân");
+    },
+    execute(channel) {
+      const path = `${appRoot}/assests/images/phan_van.jpeg`;
+      const attachment = new Discord.MessageAttachment(path, "phan_van.jpeg");
+      const embed = new Discord.MessageEmbed()
+        .attachFiles(attachment)
+        .setImage("attachment://phan_van.jpeg");
+      channel.send({ embed });
+    },
+  },
 ];

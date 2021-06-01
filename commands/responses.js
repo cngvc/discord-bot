@@ -5,6 +5,7 @@ const PHAN_VAN_IMAGE_URL = "https://i.ibb.co/8mHwCv5/phan-van.png";
 const X_PAIN_IMAGE_URL = "https://i.ibb.co/QFDhn4G/x-pain.png";
 const PRAY_GIF_URL = "http://gph.is/1rrG9vI";
 const THANKS_YOU_GIF_URL = "https://gph.is/g/EvdgPYo";
+const FUCK_YOU_GIF_URL = "http://gph.is/22z6xkE"
 
 module.exports = [
   {
@@ -75,6 +76,20 @@ module.exports = [
     },
     execute(channel) {
       channel.send(THANKS_YOU_GIF_URL);
+    },
+  },
+  {
+    match(content) {
+      return (
+        content.toLowerCase().includes("fuck") ||
+        content.toLowerCase().includes("dit me may") ||
+        content.toLowerCase().includes("địt mẹ mày") ||
+        content.toLowerCase().includes("dcmm") || 
+        content.toLowerCase().includes("dcm")
+      );
+    },
+    execute(channel) {
+      channel.send(FUCK_YOU_GIF_URL);
     },
   },
 ];

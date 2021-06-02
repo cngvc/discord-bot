@@ -8,14 +8,15 @@ const { tokenPrice } = require("./fetch/cmcAPI");
 const { whaleTranfer } = require("./fetch/whaleAPI");
 const { colors } = require("./constant/strings");
 
-const responses = require("./commands/responses");
+const basicResponses = require("./commands/basicResponses");
+const anwserResporses = require("./commands/anwserResporses");
 
 const client = new Discord.Client();
 client.login(process.env.DISCORDJS_BOT_TOKEN);
 const {
   pricePrefix,
-  generalChannelID,
   botSpamChannelID,
+  questionPrefix
 } = require("./config.json");
 
 client.on("message", (message) => {
@@ -34,11 +35,13 @@ client.on("message", (message) => {
     case pricePrefix:
       getPrice(commandName);
       break;
+    case questionPrefix:
+      const anwser = anwserResporses.find((res) => res.match(commandName));
+      if (anwser) anwser.execute(message);
+      break;
     default:
-      const response = responses.find((res) => res.match(content));
-      if (response) {
-        response.execute(channel);
-      }
+      const basic = basicResponses.find((res) => res.match(content));
+      if (basic) basic.execute(channel);
       return;
   }
 });

@@ -1,5 +1,6 @@
 {
 	"pricePrefix": "!",
+    "questionPrefix": "?",
     "generalChannelID": "846392662953033793",
     "botSpamChannelID": "848142968976048148"
 }

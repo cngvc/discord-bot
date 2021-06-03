@@ -8,7 +8,6 @@ const { tokenPrice } = require("./fetch/cmcAPI");
 const { whaleTranfer } = require("./fetch/whaleAPI");
 const { colors } = require("./constant/strings");
 
-const basicResponses = require("./commands/basicResponses");
 const anwserResporses = require("./commands/anwserResporses");
 
 const client = new Discord.Client();
@@ -39,10 +38,7 @@ client.on("message", (message) => {
       const anwser = anwserResporses.find((res) => res.match(commandName));
       if (anwser) anwser.execute(message);
       break;
-    default:
-      const basic = basicResponses.find((res) => res.match(content));
-      if (basic) basic.execute(channel);
-      return;
+    default: return;
   }
 });
 

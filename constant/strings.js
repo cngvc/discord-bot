@@ -4,4 +4,8 @@ const colors = {
     danger: 13577004,
     success: 8709756 
 }
-module.exports = {colors}
+const emoji = {
+    money_up: "🤑",
+    money_down: "🔪"
+}
+module.exports = {colors, emoji}

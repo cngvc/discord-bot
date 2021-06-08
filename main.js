@@ -1,22 +1,62 @@
 require("dotenv").config();
 
+// library
 const path = require("path");
+const Discord = require("discord.js");
+const mysql = require("mysql");
+
 global.appRoot = path.resolve(__dirname);
 
-const Discord = require("discord.js");
-const { tokenPrice } = require("./fetch/cmcAPI");
-const { whaleTranfer } = require("./fetch/whaleAPI");
-const { colors } = require("./constant/strings");
+// database config
+const database = mysql.createConnection({
+  host: process.env.DATABASE_HOST,
+  port: process.env.DATABASE_PORT,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
+});
 
-const anwserResporses = require("./commands/anwserResporses");
+// commands
+const anwsers = require("./commands/anwsers");
+const reputations = require("./commands/reputations");
 
-const client = new Discord.Client();
-client.login(process.env.DISCORDJS_BOT_TOKEN);
+// api
+const { tokenPrice } = require("./fetch/cmc");
+const { whaleTranfer } = require("./fetch/whale");
+const { getBtcPrice, getBnbPrice } = require("./interval/price");
+
+// database
+const { createSeedData } = require("./database/seeding");
 const {
-  pricePrefix,
+  insertMemberIfDoesNotExist,
+  upReputation,
+  downReputation,
+} = require("./database/queries");
+
+// constant
+const { colors, emoji } = require("./constant/strings");
+
+const client = new Discord.Client({
+  // ws: { intents: ["GUILD_MEMBERS", "GUILD_PRESENCES"] },
+  partials: ["MESSAGE", "CHANNEL", "REACTION"],
+});
+client.login(process.env.DISCORDJS_BOT_TOKEN);
+
+const {
+  generalChannelID,
   botSpamChannelID,
-  questionPrefix
+  pricePrefix,
+  questionPrefix,
+  databasePrefix,
 } = require("./config.json");
+
+database.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log("Database ready!.");
+  createSeedData(database);
+});
 
 client.on("message", (message) => {
   if (message.author.bot) return;
@@ -24,7 +64,7 @@ client.on("message", (message) => {
 
   const { content } = message;
   const prefix = content[0];
-  const commandName = content.trim().slice(1).toUpperCase();
+  const commandName = content.trim().slice(1).split(" ")[0].toUpperCase();
 
   const getPrice = async (symbol) => {
     const { description } = await tokenPrice({ symbol });
@@ -35,16 +75,38 @@ client.on("message", (message) => {
       getPrice(commandName);
       break;
     case questionPrefix:
-      const anwser = anwserResporses.find((res) => res.match(commandName));
+      const anwser = anwsers.find((res) => res.match(commandName));
       if (anwser) anwser.execute(message);
       break;
-    default: return;
+    case databasePrefix:
+      const user = message.mentions.users.array()[0] || message.author;
+      const reputation = reputations.find((res) => res.match(commandName));
+      if (reputation)
+        reputation.execute({ channel, message, user, connection: database });
+      break;
+    default:
+      return;
   }
 });
 
 client.once("ready", async () => {
-  // botSpamChannelID
-  const generalRoom = client.channels.cache.get(botSpamChannelID);
+  const guild = await client.guilds.fetch(process.env.GUILD_ID);
+
+  const members = await guild.members.fetch();
+  members.forEach((member) => {
+    const { id, bot } = member.user;
+    if (!bot) {
+      insertMemberIfDoesNotExist({
+        discord_id: id,
+        guild_id: process.env.GUILD_ID,
+        connection: database,
+      });
+    }
+  });
+
+  console.log("Bot ready!.");
+
+  const generalRoom = await client.channels.fetch(botSpamChannelID);
   let prevTimespan = null;
   let prevTransactionHash = null;
   let btcPricePrev = 0;
@@ -67,18 +129,8 @@ client.once("ready", async () => {
 
   const btc = setInterval(() => {
     const btcPrice = async () => {
-      const { price } = await tokenPrice({ symbol: "BTC" });
+      const { price, color, description } = await getBtcPrice(btcPricePrev);
       if (btcPricePrev) {
-        const isIncreased = price > btcPricePrev;
-        const percent = Number.parseFloat(
-          (Math.abs(price - btcPricePrev) / btcPricePrev) * 100
-        ).toFixed(2);
-        const color = isIncreased ? colors.success : colors.danger;
-        const icon = isIncreased ? ":stonk:" : ":stunk:";
-        const description = `
-          ${icon} BTC: **${Number.parseFloat(price).toFixed(2)}** USD\n${
-          isIncreased ? "Increased" : "Decreased"
-        } by **${percent}%** in the last 1 hour`;
         generalRoom.send({ embed: { color, description } });
       }
       btcPricePrev = price;
@@ -88,22 +140,42 @@ client.once("ready", async () => {
 
   const bnb = setInterval(() => {
     const bnbPrice = async () => {
-      const { price } = await tokenPrice({ symbol: "BNB" });
+      const { price, color, description } = await getBnbPrice(bnbPricePrev);
       if (bnbPricePrev) {
-        const isIncreased = price > bnbPricePrev;
-        const percent = Number.parseFloat(
-          (Math.abs(price - bnbPricePrev) / bnbPricePrev) * 100
-        ).toFixed(2);
-        const color = isIncreased ? colors.success : colors.danger;
-        const icon = isIncreased ? ":stonk:" : ":stunk:";
-        const description = `
-          ${icon} BNB: **${Number.parseFloat(price).toFixed(2)}** USD\n${
-          isIncreased ? "Increased" : "Decreased"
-        } by **${percent}%** in the last 1 hour`;
         generalRoom.send({ embed: { color, description } });
       }
       bnbPricePrev = price;
     };
     bnbPrice();
   }, 3600000);
+});
+
+client.on("messageReactionAdd", async (reaction, user) => {
+  if (reaction.partial) await reaction.fetch();
+  const { content, author } = reaction.message;
+  const prefix = content[0];
+  const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
+  if (prefix === databasePrefix && commandName === "keo") {
+    if (reaction.emoji.name === emoji.money_up) {
+      upReputation({ discord_id: author.id, connection: database });
+    }
+    if (reaction.emoji.name === emoji.money_down) {
+      downReputation({ discord_id: author.id, connection: database });
+    }
+  }
+});
+
+client.on("messageReactionRemove", async (reaction, user) => {
+  if (reaction.partial) await reaction.fetch();
+  const { content, author } = reaction.message;
+  const prefix = content[0];
+  const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
+  if (prefix === databasePrefix && commandName === "keo") {
+    if (reaction.emoji.name === emoji.money_up) {
+      downReputation({ discord_id: author.id, connection: database });
+    }
+    if (reaction.emoji.name === emoji.money_down) {
+      upReputation({ discord_id: author.id, connection: database });
+    }
+  }
 });

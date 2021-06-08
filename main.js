@@ -48,6 +48,7 @@ client.once("ready", async () => {
   let prevTimespan = null;
   let prevTransactionHash = null;
   let btcPricePrev = 0;
+  let bnbPricePrev = 0;
 
   const whale = setInterval(() => {
     const checkWhaleTranfer = async () => {
@@ -73,7 +74,7 @@ client.once("ready", async () => {
           (Math.abs(price - btcPricePrev) / btcPricePrev) * 100
         ).toFixed(2);
         const color = isIncreased ? colors.success : colors.danger;
-        const icon = isIncreased ? ":point_up:" : ":point_down:";
+        const icon = isIncreased ? ":stonk:" : ":stunk:";
         const description = `
           ${icon} BTC: **${Number.parseFloat(price).toFixed(2)}** USD\n${
           isIncreased ? "Increased" : "Decreased"
@@ -83,5 +84,26 @@ client.once("ready", async () => {
       btcPricePrev = price;
     };
     btcPrice();
+  }, 3600000);
+
+  const bnb = setInterval(() => {
+    const bnbPrice = async () => {
+      const { price } = await tokenPrice({ symbol: "BNB" });
+      if (bnbPricePrev) {
+        const isIncreased = price > bnbPricePrev;
+        const percent = Number.parseFloat(
+          (Math.abs(price - bnbPricePrev) / bnbPricePrev) * 100
+        ).toFixed(2);
+        const color = isIncreased ? colors.success : colors.danger;
+        const icon = isIncreased ? ":stonk:" : ":stunk:";
+        const description = `
+          ${icon} BNB: **${Number.parseFloat(price).toFixed(2)}** USD\n${
+          isIncreased ? "Increased" : "Decreased"
+        } by **${percent}%** in the last 1 hour`;
+        generalRoom.send({ embed: { color, description } });
+      }
+      bnbPricePrev = price;
+    };
+    bnbPrice();
   }, 3600000);
 });

@@ -10,11 +10,12 @@ module.exports = [
       return content.toLowerCase() === "uytin";
     },
     execute({ channel, user, connection }) {
+      console.log(user)
       getMemberReputation({
         discord_id: user.id,
         connection,
         callback: (value) => {
-          channel.send(`**[${user.username}]** Điểm uy tin: **${value}**`);
+          channel.send(`Test **[${user.username}]** Điểm uy tin: **${value}**`);
         },
       });
     },

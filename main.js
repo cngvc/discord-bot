@@ -23,7 +23,6 @@ const reputations = require("./commands/reputations");
 // api
 const { tokenPrice } = require("./fetch/cmc");
 const { whaleTranfer } = require("./fetch/whale");
-const { getBtcPrice, getBnbPrice } = require("./interval/price");
 
 // database
 const { createSeedData } = require("./database/seeding");
@@ -109,8 +108,6 @@ client.once("ready", async () => {
   const generalRoom = await client.channels.fetch(botSpamChannelID);
   let prevTimespan = null;
   let prevTransactionHash = null;
-  let btcPricePrev = 0;
-  let bnbPricePrev = 0;
 
   const whale = setInterval(() => {
     const checkWhaleTranfer = async () => {
@@ -126,28 +123,6 @@ client.once("ready", async () => {
     };
     checkWhaleTranfer();
   }, 300000);
-
-  const btc = setInterval(() => {
-    const btcPrice = async () => {
-      const { price, color, description } = await getBtcPrice(btcPricePrev);
-      if (btcPricePrev) {
-        generalRoom.send({ embed: { color, description } });
-      }
-      btcPricePrev = price;
-    };
-    btcPrice();
-  }, 3600000);
-
-  const bnb = setInterval(() => {
-    const bnbPrice = async () => {
-      const { price, color, description } = await getBnbPrice(bnbPricePrev);
-      if (bnbPricePrev) {
-        generalRoom.send({ embed: { color, description } });
-      }
-      bnbPricePrev = price;
-    };
-    bnbPrice();
-  }, 3600000);
 });
 
 client.on("messageReactionAdd", async (reaction, user) => {

@@ -1,5 +1,6 @@
 {
 	"pricePrefix": "!",
+    "deepPricePrefix": "^",
     "questionPrefix": "?",
     "databasePrefix": "$",
     "generalChannelID": "846392662953033793",

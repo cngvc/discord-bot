@@ -21,7 +21,7 @@ const anwsers = require("./commands/anwsers");
 const reputations = require("./commands/reputations");
 
 // api
-const { tokenPrice } = require("./fetch/cmc");
+const { tokenPrice, deepTokenPrice } = require("./fetch/cmc");
 const { whaleTranfer } = require("./fetch/whale");
 
 // database
@@ -45,6 +45,7 @@ const {
   generalChannelID,
   botSpamChannelID,
   pricePrefix,
+  deepPricePrefix,
   questionPrefix,
   databasePrefix,
 } = require("./config.json");
@@ -69,9 +70,16 @@ client.on("message", (message) => {
     const { description } = await tokenPrice({ symbol });
     channel.send({ embed: { color: colors.primary, description } });
   };
+  const getDeepTokenPrice = async (symbol) => {
+    const { description } = await deepTokenPrice({ symbol });
+    channel.send({ embed: { color: colors.warning, description } });
+  };
   switch (prefix) {
     case pricePrefix:
       getPrice(commandName);
+      break;
+    case deepPricePrefix:
+      getDeepTokenPrice(commandName);
       break;
     case questionPrefix:
       const anwser = anwsers.find((res) => res.match(commandName));

@@ -15,7 +15,7 @@ module.exports = [
         discord_id: user.id,
         connection,
         callback: (value) => {
-          channel.send(`Test **[${user.username}]** Điểm uy tin: **${value}**`);
+          channel.send(`**[${user.username}]** Điểm uy tin: **${value}**`);
         },
       });
     },

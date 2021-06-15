@@ -8,13 +8,13 @@ const mysql = require("mysql");
 global.appRoot = path.resolve(__dirname);
 
 // database config
-const database = mysql.createConnection({
-  host: process.env.DATABASE_HOST,
-  port: process.env.DATABASE_PORT,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_NAME,
-});
+// const database = mysql.createConnection({
+//   host: process.env.DATABASE_HOST,
+//   port: process.env.DATABASE_PORT,
+//   user: process.env.DATABASE_USER,
+//   password: process.env.DATABASE_PASSWORD,
+//   database: process.env.DATABASE_NAME,
+// });
 
 // commands
 const anwsers = require("./commands/anwsers");
@@ -25,12 +25,12 @@ const { tokenPrice, deepTokenPrice } = require("./fetch/cmc");
 const { whaleTranfer } = require("./fetch/whale");
 
 // database
-const { createSeedData } = require("./database/seeding");
-const {
-  insertMemberIfDoesNotExist,
-  upReputation,
-  downReputation,
-} = require("./database/queries");
+// const { createSeedData } = require("./database/seeding");
+// const {
+//   insertMemberIfDoesNotExist,
+//   upReputation,
+//   downReputation,
+// } = require("./database/queries");
 
 // constant
 const { colors, emoji } = require("./constant/strings");
@@ -50,13 +50,13 @@ const {
   databasePrefix,
 } = require("./config.json");
 
-database.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log("Database ready!.");
-  createSeedData(database);
-});
+// database.connect((err) => {
+//   if (err) {
+//     throw err;
+//   }
+//   console.log("Database ready!.");
+//   createSeedData(database);
+// });
 
 client.on("message", (message) => {
   if (message.author.bot) return;
@@ -85,31 +85,31 @@ client.on("message", (message) => {
       const anwser = anwsers.find((res) => res.match(commandName));
       if (anwser) anwser.execute(message);
       break;
-    case databasePrefix:
-      const user = message.mentions.users.array()[0] || message.author;
-      const reputation = reputations.find((res) => res.match(commandName));
-      if (reputation)
-        reputation.execute({ channel, message, user, connection: database });
-      break;
+    // case databasePrefix:
+    //   const user = message.mentions.users.array()[0] || message.author;
+    //   const reputation = reputations.find((res) => res.match(commandName));
+    //   if (reputation)
+    //     reputation.execute({ channel, message, user, connection: database });
+    //   break;
     default:
       return;
   }
 });
 
 client.once("ready", async () => {
-  const guild = await client.guilds.fetch(process.env.GUILD_ID);
+  // const guild = await client.guilds.fetch(process.env.GUILD_ID);
 
-  const members = await guild.members.fetch();
-  members.forEach((member) => {
-    const { id, bot } = member.user;
-    if (!bot) {
-      insertMemberIfDoesNotExist({
-        discord_id: id,
-        guild_id: process.env.GUILD_ID,
-        connection: database,
-      });
-    }
-  });
+  // const members = await guild.members.fetch();
+  // members.forEach((member) => {
+  //   const { id, bot } = member.user;
+  //   if (!bot) {
+  //     insertMemberIfDoesNotExist({
+  //       discord_id: id,
+  //       guild_id: process.env.GUILD_ID,
+  //       connection: database,
+  //     });
+  //   }
+  // });
 
   console.log("Bot ready!.");
 
@@ -133,32 +133,32 @@ client.once("ready", async () => {
   }, 300000);
 });
 
-client.on("messageReactionAdd", async (reaction, user) => {
-  if (reaction.partial) await reaction.fetch();
-  const { content, author } = reaction.message;
-  const prefix = content[0];
-  const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
-  if (prefix === databasePrefix && commandName === "keo") {
-    if (reaction.emoji.name === emoji.money_up) {
-      upReputation({ discord_id: author.id, connection: database });
-    }
-    if (reaction.emoji.name === emoji.money_down) {
-      downReputation({ discord_id: author.id, connection: database });
-    }
-  }
-});
+// client.on("messageReactionAdd", async (reaction, user) => {
+//   if (reaction.partial) await reaction.fetch();
+//   const { content, author } = reaction.message;
+//   const prefix = content[0];
+//   const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
+//   if (prefix === databasePrefix && commandName === "keo") {
+//     if (reaction.emoji.name === emoji.money_up) {
+//       upReputation({ discord_id: author.id, connection: database });
+//     }
+//     if (reaction.emoji.name === emoji.money_down) {
+//       downReputation({ discord_id: author.id, connection: database });
+//     }
+//   }
+// });
 
-client.on("messageReactionRemove", async (reaction, user) => {
-  if (reaction.partial) await reaction.fetch();
-  const { content, author } = reaction.message;
-  const prefix = content[0];
-  const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
-  if (prefix === databasePrefix && commandName === "keo") {
-    if (reaction.emoji.name === emoji.money_up) {
-      downReputation({ discord_id: author.id, connection: database });
-    }
-    if (reaction.emoji.name === emoji.money_down) {
-      upReputation({ discord_id: author.id, connection: database });
-    }
-  }
-});
+// client.on("messageReactionRemove", async (reaction, user) => {
+//   if (reaction.partial) await reaction.fetch();
+//   const { content, author } = reaction.message;
+//   const prefix = content[0];
+//   const commandName = content.trim().slice(1).split(" ")[0].toLocaleLowerCase();
+//   if (prefix === databasePrefix && commandName === "keo") {
+//     if (reaction.emoji.name === emoji.money_up) {
+//       downReputation({ discord_id: author.id, connection: database });
+//     }
+//     if (reaction.emoji.name === emoji.money_down) {
+//       upReputation({ discord_id: author.id, connection: database });
+//     }
+//   }
+// });
